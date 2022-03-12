@@ -5,7 +5,7 @@ pembuat bot ini tidak bertanggung jawab jika anda kena banned/blokir shopee kare
 ### Termux
 copas command dibawah
 ```
-pkg install wget && wget -O bfs https://github.com/alimsk/bfs/releases/latest/download/bfs && chmod +x bfs
+pkg install wget && wget -O bfs https://github.com/alimsk/bfs/releases/latest/download/bfs-android-arm64 && chmod +x bfs
 ```
 
 ### Linux
@@ -15,7 +15,7 @@ go install github.com/alimsk/bfs@latest
 ```
 kalo belum:
 ```
-sudo apt install wget && wget -O bfs https://github.com/alimsk/bfs/releases/latest/download/bfs && chmod +x bfs
+sudo apt install wget && wget -O bfs https://github.com/alimsk/bfs/releases/latest/download/bfs-linux-amd64 && chmod +x bfs
 ```
 
 ## Cara Pake
