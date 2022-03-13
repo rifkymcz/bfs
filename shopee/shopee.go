@@ -1,7 +1,6 @@
 package shopee
 
 import (
-	"errors"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -13,6 +12,10 @@ import (
 var ShopeeUrl, _ = url.Parse("https://mall.shopee.co.id")
 
 const ua = "Android app Shopee appver=28320 app_type=1"
+
+type InvalidCookieError string
+
+func (i InvalidCookieError) Error() string { return string(i) }
 
 type Client struct {
 	Client *resty.Client
@@ -27,9 +30,9 @@ func New(cookie http.CookieJar) (Client, error) {
 		}
 	}
 	if csrftoken == "" {
-		return Client{}, errors.New("csrftoken not found in cookie")
+		return Client{}, InvalidCookieError("csrftoken not found in cookie")
 	} else if len(csrftoken) != 32 {
-		return Client{}, errors.New("invalid csrftoken")
+		return Client{}, InvalidCookieError("invalid csrftoken")
 	}
 
 	client := resty.New().

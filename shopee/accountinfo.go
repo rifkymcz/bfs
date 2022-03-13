@@ -17,7 +17,12 @@ func (c Client) FetchAccountInfo() (AccountInfo, error) {
 		return AccountInfo{}, err
 	}
 
-	return AccountInfo{jsoniter.Get(resp.Body())}, nil
+	json := jsoniter.Get(resp.Body())
+	if json.Size() == 0 {
+		return AccountInfo{}, InvalidCookieError("invalid or expired cookie")
+	}
+
+	return AccountInfo{json}, nil
 }
 
 func (a AccountInfo) ShopID() int64    { return a.json.Get("shopid").ToInt64() }
