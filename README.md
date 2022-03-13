@@ -22,12 +22,13 @@ sudo apt install wget && wget -O bfs https://github.com/alimsk/bfs/releases/late
 ## Cara Pake
 cara ambil cookie
 1. login di browser seperti biasa
-2. jika sudah login, buka [shopee.co.id](https://shopee.co.id)
+2. kalo sudah login, buka [shopee.co.id](https://shopee.co.id)
 3. copy script dibawah dan pastekan ke kolom url
    ```js
-   javascript:document.write(document.cookie)
+   javascript:setTimeout(()=>navigator.clipboard.writeText(document.cookie),400)
    ```
-4. copy cookie yang ditampilkan di browser
+4. NOTE: chrome secara otomatis menghapus teks `javascript:` ketika anda mem-paste script tersebut di kolom url,
+   yang membuat scriptnya tidak berjalan, ketik secara manual jika tidak ada.
 
 lalu run command 
 ```
