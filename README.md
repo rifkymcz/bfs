@@ -20,6 +20,8 @@ sudo apt install wget && wget -O bfs https://github.com/alimsk/bfs/releases/late
 ```
 
 ## Cara Pake
+cek [link tutorial](https://youtu.be/DcRKPCcx-Bs).
+
 ambil cookie dari browser, lalu login dengan command dibawah
 ```
 echo -n "PASTE COOKIE DISINI" | ./bfs login
@@ -29,7 +31,7 @@ jika login sukses username akan ditampilkan di terminal.
 
 lalu run botnya seperti biasa
 ```
-$ ./bfs
+./bfs
 ```
 run `bfs -h` buat nampilin semua opsi.
 
