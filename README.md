@@ -28,7 +28,7 @@ cara ambil cookie
    javascript:setTimeout(()=>navigator.clipboard.writeText(document.cookie),400)
    ```
 4. NOTE: chrome secara otomatis menghapus teks `javascript:` ketika anda mem-paste script tersebut di kolom url,
-   yang membuat scriptnya tidak berjalan, ketik secara manual jika tidak ada.
+   yang membuat scriptnya tidak berjalan. ketik aja secara manual kalo gak ada.
 
 lalu run command 
 ```
