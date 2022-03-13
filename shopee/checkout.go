@@ -64,8 +64,6 @@ func (p PlaceOrderError) Error() string {
 //go:embed place_order.json
 var placeOrderPayload []byte
 
-// supported payload data types is `string`, `[]byte`, `struct`, `map`, `slice` and `io.Reader`.
-// can be pointer or non-pointer
 func (c Client) PlaceOrder(r CheckoutGetResult) error {
 	resp, err := c.Client.R().
 		SetBody(r).

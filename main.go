@@ -7,12 +7,12 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"net/http/cookiejar"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/alimsk/bfs/shopee"
@@ -20,7 +20,7 @@ import (
 )
 
 var (
-	cookieFilename = flag.String("cookie", "cookie", "cookie file")
+	cookieFilename = flag.String("cookie", "cookie.gob", "gob encoded cookie filename")
 )
 
 func main() {
@@ -36,20 +36,29 @@ func main() {
 	log.SetFlags(0)
 	flag.Parse()
 
+	if flag.NArg() > 0 {
+		if flag.Arg(0) == "login" {
+			readpipe()
+			return
+		} else {
+			fatalIf(errors.New("unknown subcommand: " + flag.Arg(0)))
+		}
+	}
+
 	c := loadCookie()
-	checkcookie(c)
+	validateacc(c)
 	defer func() { saveCookie(c.Client.GetClient().Jar) }()
 
-	deliveryAddr := addrinfo(c)
-	item := iteminfo(c)
-	citem := model(item)
-	paymentData := payment()
-	logistic := logistics(c, deliveryAddr, item)
+	deliveryAddr := validateaddr(c)
+	item := validateitem(c)
+	citem := inputmodel(item)
+	paymentData := inputpayment()
+	logistic := inputlogistic(c, deliveryAddr, item)
 
 	fmt.Println()
 	clog := log.New(os.Stdout, "", log.Ltime)
 	if !citem.IsFlashSale() {
-		clog.Print("menunggu flash sale... ")
+		clog.Print("menunggu flash sale...")
 		fsaletime := time.Unix(citem.UpcomingFsaleStartTime(), 0)
 		time.Sleep(time.Until(fsaletime))
 	}
@@ -72,8 +81,21 @@ func main() {
 	fmt.Println("waktu checkout:", ternary(spent.Seconds() < 1.3, OK, W)(spent.String()))
 }
 
-func checkcookie(c shopee.Client) shopee.AccountInfo {
-	fmt.Println("mengambil informasi akun ")
+// called when the subcommand `login` is present
+func readpipe() {
+	data, _ := io.ReadAll(os.Stdin)
+	data = bytes.TrimSpace(data)
+	if len(data) == 0 {
+		fatalIf(errors.New("stdin has no data"))
+	}
+	c, err := shopee.NewFromCookieString(string(data))
+	fatalIf(err)
+	validateacc(c)
+	saveCookie(c.Client.GetClient().Jar)
+}
+
+func validateacc(c shopee.Client) shopee.AccountInfo {
+	fmt.Println("mengambil informasi akun")
 	acc, err := c.FetchAccountInfo()
 	fatalIf(err)
 
@@ -81,8 +103,8 @@ func checkcookie(c shopee.Client) shopee.AccountInfo {
 	return acc
 }
 
-func addrinfo(c shopee.Client) shopee.AddressInfo {
-	fmt.Println("mengambil informasi alamat ")
+func validateaddr(c shopee.Client) shopee.AddressInfo {
+	fmt.Println("mengambil informasi alamat")
 	addrs, err := c.FetchAddresses()
 	fatalIf(err)
 	i, deliveryAddr := addrs.DeliveryAddress()
@@ -92,10 +114,10 @@ func addrinfo(c shopee.Client) shopee.AddressInfo {
 	return deliveryAddr
 }
 
-func iteminfo(c shopee.Client) shopee.Item {
+func validateitem(c shopee.Client) shopee.Item {
 	fmt.Println()
 	url := input("url: ")
-	fmt.Println("mengambil informasi item ")
+	fmt.Println("mengambil informasi item")
 	item, err := shopee.FetchItemFromURL(url)
 	fatalIf(err)
 
@@ -112,7 +134,7 @@ func iteminfo(c shopee.Client) shopee.Item {
 	return item
 }
 
-func model(item shopee.Item) shopee.CheckoutableItem {
+func inputmodel(item shopee.Item) shopee.CheckoutableItem {
 	if len(item.Models()) == 1 {
 		return shopee.ChooseModel(item, item.Models()[0].ModelID())
 	}
@@ -141,7 +163,7 @@ func model(item shopee.Item) shopee.CheckoutableItem {
 	return shopee.ChooseModel(item, item.Models()[i].ModelID())
 }
 
-func payment() shopee.PaymentChannelData {
+func inputpayment() shopee.PaymentChannelData {
 	fmt.Println()
 	fmt.Println("pilih metode pembayaran")
 	for i, p := range shopee.PaymentChannelList {
@@ -162,9 +184,9 @@ func payment() shopee.PaymentChannelData {
 	}
 }
 
-func logistics(c shopee.Client, addr shopee.AddressInfo, item shopee.Item) shopee.LogisticChannelInfo {
+func inputlogistic(c shopee.Client, addr shopee.AddressInfo, item shopee.Item) shopee.LogisticChannelInfo {
 	fmt.Println()
-	fmt.Println("mengambil informasi logistik ")
+	fmt.Println("mengambil informasi logistik")
 	logistics, err := c.FetchShippingInfo(addr, item)
 	fatalIf(err)
 
@@ -175,7 +197,7 @@ func logistics(c shopee.Client, addr shopee.AddressInfo, item shopee.Item) shope
 				if lc.HasWarning() {
 					fmt.Print(Num(strconv.Itoa(i)), ". ", E(lc.Name()), "\n")
 				} else {
-					fmt.Print(Num(strconv.Itoa(i)), ". ", OK(lc.Name()), "\n")
+					fmt.Print(Num(strconv.Itoa(i)), ". ", H(lc.Name()), "\n")
 				}
 			}
 			i := inputInt("pilih: ", len(logistics))
@@ -209,24 +231,19 @@ func saveCookie(jar http.CookieJar) {
 }
 
 func loadCookie() (c shopee.Client) {
-	data, err := os.ReadFile(*cookieFilename)
+	f, err := os.Open(*cookieFilename)
 	if os.IsNotExist(err) {
 		err = errors.New("file cookie tidak ditemukan")
 	}
 	fatalIf(err)
 
-	cookieReader := bytes.NewBuffer(data)
-
 	var cookies []*http.Cookie
-	if err = gob.NewDecoder(cookieReader).Decode(&cookies); err == nil {
-		jar, _ := cookiejar.New(nil)
-		jar.SetCookies(shopee.ShopeeUrl, cookies)
-		c, err = shopee.New(jar)
-		fatalIf(err)
-	} else {
-		c, err = shopee.NewFromCookieString(strings.TrimSpace(cookieReader.String()))
-		fatalIf(err)
-	}
+	err = gob.NewDecoder(f).Decode(&cookies)
+	fatalIf(err)
+	jar, _ := cookiejar.New(nil)
+	jar.SetCookies(shopee.ShopeeUrl, cookies)
+	c, err = shopee.New(jar)
+	fatalIf(err)
 
 	return
 }
@@ -243,7 +260,7 @@ func input(prompt string) string {
 	fmt.Print(prompt)
 	scanner := bufio.NewScanner(os.Stdin)
 	if !scanner.Scan() {
-		os.Exit(1)
+		fatalIf(errors.New(""))
 	}
 	fatalIf(scanner.Err())
 	return scanner.Text()

@@ -125,8 +125,6 @@ type CheckoutableItem struct {
 	chosenModel int
 }
 
-func (c CheckoutableItem) ChosenModel() Model { return c.Models()[c.chosenModel] }
-
 func ChooseModel(item Item, modelId int64) CheckoutableItem {
 	var modelIndex int
 	for i, m := range item.Models() {
@@ -137,3 +135,5 @@ func ChooseModel(item Item, modelId int64) CheckoutableItem {
 	}
 	return CheckoutableItem{item, modelIndex}
 }
+
+func (c CheckoutableItem) ChosenModel() Model { return c.Models()[c.chosenModel] }

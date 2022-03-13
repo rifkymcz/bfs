@@ -7,6 +7,7 @@ copas command dibawah
 ```
 pkg install wget && wget -O bfs https://github.com/alimsk/bfs/releases/latest/download/bfs-android-arm64 && chmod +x bfs
 ```
+gunakan command yang sama ketika mau update.
 
 ### Linux
 kalo anda sudah menginstall golang versi 1.17 keatas, run:
@@ -19,22 +20,31 @@ sudo apt install wget && wget -O bfs https://github.com/alimsk/bfs/releases/late
 ```
 
 ## Cara Pake
-ambil cookie dari browser, terus simpan ke file `cookie` didalam folder yang sama dengan file `bfs`.
+cara ambil cookie
+1. login di browser seperti biasa
+2. jika sudah login, buka [shopee.co.id](https://shopee.co.id)
+3. copy script dibawah dan pastekan ke kolom url
+   ```js
+   javascript:document.write(document.cookie)
+   ```
+4. copy cookie yang ditampilkan di browser
 
-hasilnya akan terlihat seperti ini
+lalu run command 
 ```
-$ ls
-bfs  cookie
+echo -n "PASTE COOKIE DISINI" | ./bfs login
 ```
+jangan lupa ganti teks `PASTE COOKIE DISINI` dengan cookie yang barusan anda copy.\
+jika login sukses username akan ditampilkan di terminal.
 
-terus run botnya seperti biasa
+lalu run botnya seperti biasa
 ```
 $ ./bfs
 ```
 run `bfs -h` buat nampilin semua opsi.
 
-file `cookie` bisa berisi cookie biasa seperti yg ada di request header,
-atau `[]*http.Cookie` yang diserialisasi menggunakan [gob](https://pkg.go.dev/encoding/gob).
+### Notes
+- lakukan langkah yg sama ketika cookie expired.
+- login cukup sekali saja, jika sudah login, gak perlu login lagi setiap mau running.
 
 #
 kalo nemu bug pada bot ini, bisa buat issue [disini](https://github.com/alimsk/bfs/issues/new).
