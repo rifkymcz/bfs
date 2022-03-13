@@ -20,21 +20,11 @@ sudo apt install wget && wget -O bfs https://github.com/alimsk/bfs/releases/late
 ```
 
 ## Cara Pake
-cara ambil cookie
-1. login di browser seperti biasa
-2. kalo sudah login, buka [shopee.co.id](https://shopee.co.id)
-3. copy script dibawah dan pastekan ke kolom url
-   ```js
-   javascript:setTimeout(()=>navigator.clipboard.writeText(document.cookie),400)
-   ```
-4. NOTE: chrome secara otomatis menghapus teks `javascript:` ketika anda mem-paste script tersebut di kolom url,
-   yang membuat scriptnya tidak berjalan. ketik aja secara manual kalo gak ada.
-
-lalu run command 
+ambil cookie dari browser, lalu login dengan command dibawah
 ```
 echo -n "PASTE COOKIE DISINI" | ./bfs login
 ```
-jangan lupa ganti teks `PASTE COOKIE DISINI` dengan cookie yang barusan anda copy.\
+jangan lupa ganti teks `PASTE COOKIE DISINI` dengan cookie yg barusan anda ambil.\
 jika login sukses username akan ditampilkan di terminal.
 
 lalu run botnya seperti biasa
