@@ -17,6 +17,8 @@ import (
 
 	"github.com/alimsk/bfs/shopee"
 	"github.com/charmbracelet/lipgloss"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 )
 
 var (
@@ -116,17 +118,17 @@ func validateaddr(c shopee.Client) shopee.AddressInfo {
 
 func validateitem(c shopee.Client) shopee.Item {
 	fmt.Println()
-	url := input("url: ")
+	url := input("url : ")
 	fmt.Println("mengambil informasi item")
 	item, err := shopee.FetchItemFromURL(url)
 	fatalIf(err)
 
-	fmt.Println("nama: ", H(item.Name()))
+	fmt.Println("nama :", H(item.Name()))
 	if !item.HasUpcomingFsale() && !item.IsFlashSale() {
 		fatalIf(errors.New("tidak ada flash sale untuk item ini"))
 	}
-	fmt.Println("harga:", Num(strconv.FormatInt(item.Price(), 10)))
-	fmt.Println("stok: ", Num(strconv.Itoa(item.Stock())))
+	fmt.Println("harga:", Num(formatPrice(item.Price())))
+	fmt.Println("stok :", Num(strconv.Itoa(item.Stock())))
 	if item.Stock() == 0 {
 		fatalIf(errors.New("stok kosong"))
 	}
@@ -146,8 +148,8 @@ func inputmodel(item shopee.Item) shopee.CheckoutableItem {
 			"\n"+Num(strconv.Itoa(i))+". ",
 			border(""+
 				ternary(m.Stock() > 0, H, E)(m.Name())+"\n"+
-				"harga: "+Num(strconv.FormatInt(m.Price(), 10))+"\n"+
-				"stok: "+ternary(m.Stock() > 0, Num, E)(strconv.Itoa(m.Stock())),
+				"harga: "+Num(formatPrice(m.Price()))+"\n"+
+				"stok : "+ternary(m.Stock() > 0, Num, E)(strconv.Itoa(m.Stock())),
 			)),
 		)
 	}
@@ -279,4 +281,10 @@ func inputInt(prompt string, max int) (i int) {
 			return
 		}
 	}
+}
+
+var priceFormatter = message.NewPrinter(language.Indonesian)
+
+func formatPrice(v int64) string {
+	return priceFormatter.Sprintf("Rp%d", v/100000)
 }

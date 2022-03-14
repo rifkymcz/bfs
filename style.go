@@ -9,7 +9,7 @@ var (
 	W      = NewStyle().Foreground(Color("#ee9b00")).Render
 	OK     = NewStyle().Foreground(AdaptiveColor{Dark: "#52b788", Light: "#2d6a4f"}).Render
 	Num    = NewStyle().Foreground(Color("#b48ead")).Render
-	border = NewStyle().Border(RoundedBorder(), true).Padding(0, 1).Render
+	border = NewStyle().Border(NormalBorder(), true).Padding(0, 1).Render
 	center = NewStyle().Align(Center).Render
 	H      = NewStyle().Foreground(Color("#84a98c")).Render
 )
