@@ -24,7 +24,7 @@ cek [link tutorial](https://youtu.be/DcRKPCcx-Bs).
 
 ambil cookie dari browser, lalu login dengan command dibawah
 ```
-echo -n "PASTE COOKIE DISINI" | ./bfs login
+echo -n 'PASTE COOKIE DISINI' | ./bfs login
 ```
 jangan lupa ganti teks `PASTE COOKIE DISINI` dengan cookie yg barusan anda ambil.\
 jika login sukses username akan ditampilkan di terminal.
